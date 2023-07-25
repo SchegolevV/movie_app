@@ -5,7 +5,7 @@ import CardContent from './card-content'
 import CardImage from './card-image'
 import './movie-card.css'
 
-function MovieCard({ title, poster_path, overview, release_date, loading }) {
+function MovieCard({ title, poster_path, overview, release_date }) {
   const createDate = (date) => {
     if (!date) {
       return <Alert type="error" message="unknown date" />
@@ -24,7 +24,7 @@ function MovieCard({ title, poster_path, overview, release_date, loading }) {
     }
     return text + '...'
   }
-  let image = <CardImage image={poster_path} loading={loading} />
+  let image = <CardImage image={poster_path} />
   let alert
   if (!poster_path) {
     image = null

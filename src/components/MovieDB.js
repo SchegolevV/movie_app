@@ -10,26 +10,30 @@ export default class MovieDB {
       Authorization: `Bearer ${this.API_TOKEN}`,
     },
   }
-  async getSource(type, value, options = null) {
-    return await fetch(`${this.API_BASE}${type}?query=${value}&api_key=${this.API_KEY}`, options)
+  createPath(type, value, page) {
+    return `${this.API_BASE}${type}?query=${value}&api_key=${this.API_KEY}&page=${page}`
+  }
+  getSource = async (type, value, page) => {
+    return await fetch(this.createPath(type, value, page))
       .then((response) => response.json())
       .catch((err) => {
         throw new Error(err)
       })
   }
-  async getMovies(keyword) {
+  async getMovies(keyword, page = 1) {
     try {
-      const body = await this.getSource('movie', keyword)
-      return body.results
+      if (!keyword.trim()) {
+        throw new Error('required non empty request')
+      }
+
+      const body = await this.getSource('movie', keyword, page)
+
+      if (!body.total_results) {
+        throw new Error('no results for request')
+      }
+      return body
     } catch (err) {
       throw new Error(err)
     }
-  }
-  async test(type, append = '') {
-    return await fetch(
-      `https://api.themoviedb.org/3/${type}/157336?api_key=${this.API_KEY}&append_to_response=${append}`
-    )
-      .then((response) => console.log(response.json()))
-      .catch((err) => console.error(err))
   }
 }
