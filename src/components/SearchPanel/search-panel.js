@@ -7,6 +7,9 @@ export default class SearchPanel extends Component {
     this.props.getMovies(e.target.value)
   }
   render() {
+    if (this.props.tab === 'rated') {
+      return null
+    }
     return (
       <Input
         size="large"

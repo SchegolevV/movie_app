@@ -1,9 +1,10 @@
-import { Layout } from 'antd'
+import { Tabs, Pagination } from 'antd'
 import { Component } from 'react'
 
-import MovieDB from '../MovieDB'
+import MovieDB from '../../services/MovieDB'
 import MoviesList from '../MoviesList/movies-list'
 import SearchPanel from '../SearchPanel/search-panel'
+import { Provider } from '../../context/context.js'
 
 import './app.css'
 
@@ -16,27 +17,67 @@ export default class App extends Component {
     error: { status: false, text: '' },
     pages: { current: null, total: null },
     keyword: '',
+    guestID: '',
+    tab: 'search',
+    genres: [],
+    ratedMovies: [],
   }
 
+  tabs = [
+    {
+      key: 'search',
+      label: 'Search',
+    },
+    {
+      key: 'rated',
+      label: 'Rated',
+    },
+  ]
+
   componentDidMount = () => {
+    this.createGuestSession()
     this.getMovies('barbie')
+    this.getGenres()
   }
 
   componentDidUpdate(pP, prevState) {
     if (prevState.pages.current !== this.state.pages.current) {
       this.setNewPage()
     }
+    if (prevState.ratedMovies !== this.state.ratedMovies) {
+      this.getRatedMovies()
+    }
   }
 
-  getMovies = async (keyword) => {
+  createGuestSession = () => {
+    this.MovieDB.createGuestSession()
+      .then((guest) => {
+        this.setState({
+          guestID: guest.guest_session_id,
+        })
+      })
+      .catch((err) => this.onError(err))
+  }
+
+  getMovies = (keyword, page) => {
     this.setState({ loading: true, keyword: keyword })
-    await this.MovieDB.getMovies(keyword)
+    this.MovieDB.getMovies(keyword, page)
       .then((data) => {
         this.setMovieData(data)
       })
       .catch((err) => {
         this.onError(err)
       })
+  }
+
+  getGenres = () => {
+    this.MovieDB.getGenres()
+      .then((genres) => {
+        this.setState({
+          genres: genres,
+        })
+      })
+      .catch((err) => this.onError(err))
   }
 
   onError = (err) => {
@@ -46,12 +87,19 @@ export default class App extends Component {
       pages: { current: null, total: null },
       keyword: '',
     })
-    console.log(err.stack)
+    console.error(err.stack)
   }
 
   onChangePage = (page) => {
     this.setState(({ pages }) => {
       return { pages: { current: page, total: pages.total } }
+    })
+  }
+
+  onChangeTab = (activeKey) => {
+    const newValue = activeKey === 'search' ? 'search' : 'rated'
+    this.setState({
+      tab: newValue,
     })
   }
 
@@ -76,27 +124,52 @@ export default class App extends Component {
     })
   }
 
-  async isOnline() {
-    try {
-      await fetch('https://google.com')
-      return true
-    } catch {
-      this.setState({
-        online: false,
-      })
+  addRated = (rate, movieID) => {
+    if (this.state.ratedMovies.find((movie) => movie.id === movieID)) {
+      return
     }
+
+    this.MovieDB.addMovieRate(rate, movieID, this.state.guestID)
+
+    this.setState(({ ratedMovies }) => {
+      const newMovie = this.state.moviesData.find((movie) => movie.id === movieID)
+      const newList = ratedMovies.toSpliced(-1, 0, newMovie)
+      return {
+        ratedMovies: newList,
+      }
+    })
   }
+  getRatedMovies = () => {
+    this.MovieDB.getRatedMovies(this.state.guestID)
+  }
+
   render() {
-    const { Header, Content } = Layout
     return (
-      <Layout className="app">
-        <Header>
-          <SearchPanel getMovies={this.getMovies} setData={this.setMovieData} onError={this.onError} />
-        </Header>
-        <Content className="app_main">
-          <MoviesList data={this.state} onPageChange={this.onChangePage} />
-        </Content>
-      </Layout>
+      <section className="app">
+        <header style={{ backgroundColor: 'white' }}>
+          <Tabs
+            centered
+            activeKey={this.state.tab}
+            items={this.tabs}
+            onChange={(activeTab) => this.onChangeTab(activeTab)}
+            className="app_tabs"
+            destroyInactiveTabPane={false}
+          />
+        </header>
+        <main className="app_main">
+          <Provider value={{ state: this.state, addRated: this.addRated }}>
+            <SearchPanel getMovies={this.getMovies} setData={this.setMovieData} tab={this.state.tab} />
+            <MoviesList />
+            <Pagination
+              style={{ width: 'fit-content', margin: '0 auto' }}
+              showSizeChanger={false}
+              current={this.state.pages.current}
+              total={this.state.pages.total}
+              onChange={(page) => this.onChangePage(page)}
+            />
+          </Provider>
+        </main>
+      </section>
     )
   }
 }

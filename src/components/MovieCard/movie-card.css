@@ -7,11 +7,13 @@
 }
 .movie-card_title {
   margin: 0;
+  margin-right: 30px;
   font-size: 1.25rem;
   line-height: 1.75rem;
 }
 .movie-card_content {
   padding: 20px;
+  padding-bottom: 0;
 }
 .movie-card_date {
   color: #827e7e;
@@ -23,4 +25,15 @@
 .movie-card_overview {
   margin-top: 5px;
   font-size: 12px;
+}
+.movie-card_rate {
+  font-size: 16px;
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+}
+.movie-card_rate-progress {
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }

@@ -1,4 +1,14 @@
 .app_main {
   background-color: white;
   padding: 10px;
+  min-height: inherit;
+}
+.app {
+  width: 1010px;
+  margin: 0 auto;
+  min-height: inherit;
+}
+.app_tabs {
+  width: fit-content;
+  margin: 0 auto;
 }
