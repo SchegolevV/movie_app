@@ -1,12 +1,14 @@
 .app_main {
-  background-color: white;
   padding: 10px;
   min-height: inherit;
 }
 .app {
-  width: 1010px;
+  max-width: 1010px;
   margin: 0 auto;
   min-height: inherit;
+  background-color: white;
+  font-family: sans-serif;
+  font-size: 12px;
 }
 .app_tabs {
   width: fit-content;

@@ -19,10 +19,13 @@ export default class MoviesList extends Component {
   render() {
     return (
       <Consumer>
-        {({ state, addRated }) => {
-          const { moviesData, loading, error } = state
-          const cardList = moviesData.map((movieData) => {
-            return <MovieCard {...movieData} key={movieData.id} addRated={addRated} />
+        {({ state, addRating }) => {
+          const { moviesData, ratedMovies, loading, error, tab } = state
+
+          let currentList = tab === 'rated' ? ratedMovies : moviesData
+
+          const cardList = currentList.map((movieData) => {
+            return <MovieCard {...movieData} key={movieData.id} addRating={addRating} />
           })
 
           if (loading) {

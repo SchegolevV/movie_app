@@ -1,4 +1,4 @@
-import { Card, Row, Col, Alert, Rate, Progress } from 'antd'
+import { Alert, Rate, Progress } from 'antd'
 import { format } from 'date-fns'
 import { Component } from 'react'
 
@@ -8,10 +8,6 @@ import CardImage from './card-image'
 import './movie-card.css'
 
 export default class MovieCard extends Component {
-  state = {
-    rate: 0,
-  }
-
   createDate = (date) => {
     if (!date) {
       return <Alert type="error" message="unknown date" />
@@ -39,26 +35,20 @@ export default class MovieCard extends Component {
   }
 
   onChangeRate = (rateEvent) => {
-    this.setState({ rate: rateEvent })
-    console.log(rateEvent)
-    this.props.addRated(rateEvent, this.props.id)
-  }
-
-  progressColor = () => {
-    const { rate } = this.state.rate
-    let color = ''
-    if (rate <= 3) {
-      color = '#E90000'
-    } else if (rate <= 5) {
-      color = '#E97E00'
-    } else if (rate <= 7) {
-      color = '#E9D100'
-    }
-    return color
+    this.props.addRating(rateEvent, this.props.id)
   }
 
   render() {
-    const { title, overview, release_date, genre_ids } = this.props
+    const { title, overview, release_date, genre_ids, rating = 0 } = this.props
+
+    let color = '#66E900'
+    if (rating <= 3) {
+      color = '#E90000'
+    } else if (rating <= 5) {
+      color = '#E97E00'
+    } else if (rating <= 7) {
+      color = '#E9D100'
+    }
 
     const contentData = {
       date: this.createDate(release_date),
@@ -66,31 +56,20 @@ export default class MovieCard extends Component {
       title: this.formatText(title, 25),
     }
     return (
-      <Card style={{ width: 450, height: 280 }} className="movie-card" bodyStyle={{ padding: 0 }} hoverable>
-        <Row>
-          <Col span={14} push={10}>
-            <CardContent content={contentData} genre_ids={genre_ids} />
-            <Rate
-              count={10}
-              allowHalf
-              className="movie-card_rate"
-              value={this.state.rate}
-              onChange={this.onChangeRate}
-            />
-            <Progress
-              type="circle"
-              percent={this.state.rate * 10}
-              format={(percent) => percent / 10}
-              size={35}
-              className="movie-card_rate-progress"
-              strokeColor={this.progressColor()}
-            />
-          </Col>
-          <Col span={10} pull={14} style={{ textContent: 'center' }}>
-            {this.createImage()}
-          </Col>
-        </Row>
-      </Card>
+      <div className="movie-card">
+        <CardContent content={contentData} genre_ids={genre_ids} />
+        <Rate count={10} allowHalf className="movie-card_rate" value={rating} onChange={this.onChangeRate} />
+        <Progress
+          type="circle"
+          percent={rating * 10}
+          format={(percent) => percent / 10}
+          size={35}
+          className="movie-card_rate-progress"
+          strokeColor={color}
+        />
+
+        <div className="movie-card_image-container">{this.createImage()}</div>
+      </div>
     )
   }
 }

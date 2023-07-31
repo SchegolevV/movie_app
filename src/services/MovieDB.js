@@ -3,25 +3,19 @@ export default class MovieDB {
   API_TOKEN =
     'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4NzFiNGVjZGNlN2ZiZTExYjUzZGFlZmViYzYxOWZhNCIsInN1YiI6IjY0YjEzMmJiYmE0ODAyMDEwNWRkNDI3NiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.yajbc9LeWzrq4KyjLUYMGcD25FO_q3MpCa-8DJPQbJQ'
   API_BASE = 'https://api.themoviedb.org'
-  options = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      Authorization: `Bearer ${this.API_TOKEN}`,
-    },
-  }
 
   getSource = async (url, options = null) => {
     try {
       const response = await fetch(`${this.API_BASE}${url}`, options)
       return await response.json()
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
+      throw new Error('failed to fetch, try to reload page with vpn')
     }
   }
   getMovies = async (keyword, page = 1) => {
     if (!keyword.trim()) {
-      throw new Error('gde film? :(')
+      throw new Error('no movies found')
     }
     const path = `${this.API_BASE}/3/search/movie?api_key=${this.API_KEY}&query=${keyword}&page=${page}`
 
@@ -53,8 +47,8 @@ export default class MovieDB {
       throw new Error(err)
     }
   }
-  getRatedMovies = async (id, page = 1) => {
-    const path = `${this.API_BASE}/3/guest_session/${id}/rated/movies?page=${page}`
+  getRatedMovies = async (page = 1) => {
+    const path = `${this.API_BASE}/3/account/20150389/rated/movies?page=${page}`
     const options = {
       method: 'GET',
       headers: {
@@ -81,7 +75,7 @@ export default class MovieDB {
       },
       body: JSON.stringify({ value: rate }),
     }
-    const path = `${this.API_BASE}/3/movie/${movieId}/rating?guest_session_id=${guestSessionId}'`
+    const path = `${this.API_BASE}/3/movie/${movieId}/rating?api_key=${this.API_KEY}&guest_session_id=${guestSessionId}`
 
     try {
       const response = await fetch(path, options).then((res) => res.json())

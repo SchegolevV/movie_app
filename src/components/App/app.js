@@ -15,7 +15,7 @@ export default class App extends Component {
     moviesData: [],
     loading: false,
     error: { status: false, text: '' },
-    pages: { current: null, total: null },
+    pages: { current: 1, total: null },
     keyword: '',
     guestID: '',
     tab: 'search',
@@ -44,8 +44,10 @@ export default class App extends Component {
     if (prevState.pages.current !== this.state.pages.current) {
       this.setNewPage()
     }
-    if (prevState.ratedMovies !== this.state.ratedMovies) {
-      this.getRatedMovies()
+    if (prevState.tab !== this.state.tab) {
+      if (this.state.tab === 'rated') {
+        this.getRatedMovies()
+      }
     }
   }
 
@@ -124,29 +126,32 @@ export default class App extends Component {
     })
   }
 
-  addRated = (rate, movieID) => {
-    if (this.state.ratedMovies.find((movie) => movie.id === movieID)) {
-      return
-    }
-
+  addRating = (rate, movieID) => {
     this.MovieDB.addMovieRate(rate, movieID, this.state.guestID)
 
-    this.setState(({ ratedMovies }) => {
-      const newMovie = this.state.moviesData.find((movie) => movie.id === movieID)
-      const newList = ratedMovies.toSpliced(-1, 0, newMovie)
+    this.setState(({ moviesData }) => {
+      const ratedMovie = moviesData.find(({ id }) => id === movieID)
+      ratedMovie.rating = rate
+      const newData = moviesData.map((movie) => {
+        return movie.id === ratedMovie.id ? ratedMovie : movie
+      })
       return {
-        ratedMovies: newList,
+        moviesData: newData,
       }
     })
   }
   getRatedMovies = () => {
-    this.MovieDB.getRatedMovies(this.state.guestID)
+    this.MovieDB.getRatedMovies().then((data) => {
+      this.setState({
+        ratedMovies: data.results,
+      })
+    })
   }
 
   render() {
     return (
       <section className="app">
-        <header style={{ backgroundColor: 'white' }}>
+        <header>
           <Tabs
             centered
             activeKey={this.state.tab}
@@ -157,7 +162,7 @@ export default class App extends Component {
           />
         </header>
         <main className="app_main">
-          <Provider value={{ state: this.state, addRated: this.addRated }}>
+          <Provider value={{ state: this.state, addRating: this.addRating }}>
             <SearchPanel getMovies={this.getMovies} setData={this.setMovieData} tab={this.state.tab} />
             <MoviesList />
             <Pagination
