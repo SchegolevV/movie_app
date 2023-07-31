@@ -30,8 +30,15 @@ export default class MovieDB {
     }
   }
   createGuestSession = async () => {
+    const options = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${this.API_TOKEN}`,
+      },
+    }
     try {
-      const response = await fetch(`${this.API_BASE}/3/authentication/guest_session/new`, this.options)
+      const response = await fetch(`${this.API_BASE}/3/authentication/guest_session/new`, options)
       return await response.json()
     } catch {
       throw new Error('Failed to create guest session. Try to reload the page.')
@@ -47,19 +54,17 @@ export default class MovieDB {
       throw new Error(err)
     }
   }
-  getRatedMovies = async (page = 1) => {
-    const path = `${this.API_BASE}/3/account/20150389/rated/movies?page=${page}`
+  getRatedMovies = async (guestSessionId, page = 1) => {
+    const path = `${this.API_BASE}/3/guest_session/${guestSessionId}/rated/movies?api_key=${this.API_KEY}&page=${page}`
     const options = {
       method: 'GET',
       headers: {
         accept: 'application/json',
-        Authorization: `Bearer ${this.API_TOKEN}`,
       },
     }
 
     try {
       const response = await fetch(path, options).then((response) => response.json())
-      console.log(response)
       return await response
     } catch (err) {
       throw new Error(err)
@@ -71,7 +76,6 @@ export default class MovieDB {
       headers: {
         accept: 'application/json',
         'Content-Type': 'application/json;charset=utf-8',
-        Authorization: `Bearer ${this.API_TOKEN}`,
       },
       body: JSON.stringify({ value: rate }),
     }
@@ -79,7 +83,6 @@ export default class MovieDB {
 
     try {
       const response = await fetch(path, options).then((res) => res.json())
-      console.log(response)
       return response
     } catch (err) {
       throw new Error(err)

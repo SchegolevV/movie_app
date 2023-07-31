@@ -46,13 +46,15 @@ export default class App extends Component {
     }
     if (prevState.tab !== this.state.tab) {
       if (this.state.tab === 'rated') {
-        this.getRatedMovies()
+        this.getRatedMovies(this.state.guestID)
+      } else {
+        this.getMovies(this.state.keyword)
       }
     }
   }
 
-  createGuestSession = () => {
-    this.MovieDB.createGuestSession()
+  createGuestSession = async () => {
+    await this.MovieDB.createGuestSession()
       .then((guest) => {
         this.setState({
           guestID: guest.guest_session_id,
@@ -61,19 +63,33 @@ export default class App extends Component {
       .catch((err) => this.onError(err))
   }
 
-  getMovies = (keyword, page) => {
+  getMovies = async (keyword, page) => {
     this.setState({ loading: true, keyword: keyword })
-    this.MovieDB.getMovies(keyword, page)
+    await this.MovieDB.getMovies(keyword, page)
       .then((data) => {
-        this.setMovieData(data)
+        data.results.map((movie) => {
+          let ratedMovie = this.state.ratedMovies.find((rated) => rated.id === movie.id)
+          if (ratedMovie) {
+            movie.rating = ratedMovie.rating
+          }
+        })
+        return data
+      })
+      .then((data) => {
+        this.setState({
+          moviesData: data.results,
+          loading: false,
+          error: { status: false, text: '' },
+          pages: { current: 1, total: data.total_pages },
+        })
       })
       .catch((err) => {
         this.onError(err)
       })
   }
 
-  getGenres = () => {
-    this.MovieDB.getGenres()
+  getGenres = async () => {
+    await this.MovieDB.getGenres()
       .then((genres) => {
         this.setState({
           genres: genres,
@@ -102,6 +118,8 @@ export default class App extends Component {
     const newValue = activeKey === 'search' ? 'search' : 'rated'
     this.setState({
       tab: newValue,
+      error: { status: false, text: '' },
+      loading: true,
     })
   }
 
@@ -117,35 +135,35 @@ export default class App extends Component {
       })
   }
 
-  setMovieData = (data) => {
-    this.setState({
-      moviesData: data.results,
-      loading: false,
-      error: { status: false, text: '' },
-      pages: { current: 1, total: data.total_pages },
-    })
-  }
+  addRating = async (rate, movieID) => {
+    await this.MovieDB.addMovieRate(rate, movieID, this.state.guestID)
 
-  addRating = (rate, movieID) => {
-    this.MovieDB.addMovieRate(rate, movieID, this.state.guestID)
-
-    this.setState(({ moviesData }) => {
-      const ratedMovie = moviesData.find(({ id }) => id === movieID)
-      ratedMovie.rating = rate
+    this.setState(({ moviesData, ratedMovies }) => {
+      const rated = moviesData.find(({ id }) => id === movieID)
+      rated.rating = rate
       const newData = moviesData.map((movie) => {
-        return movie.id === ratedMovie.id ? ratedMovie : movie
+        return movie.id === rated.id ? rated : movie
       })
+
+      const newRatedMovies = ratedMovies.toSpliced(-1, 0, rated)
+
       return {
         moviesData: newData,
+        ratedMovies: newRatedMovies,
       }
     })
   }
-  getRatedMovies = () => {
-    this.MovieDB.getRatedMovies().then((data) => {
-      this.setState({
-        ratedMovies: data.results,
+  getRatedMovies = async (guest_session_id) => {
+    await this.MovieDB.getRatedMovies(guest_session_id)
+      .then((data) => {
+        this.setState({
+          ratedMovies: data.results,
+          loading: false,
+        })
       })
-    })
+      .catch((err) => {
+        return this.onError(err)
+      })
   }
 
   render() {

@@ -10,7 +10,7 @@ import './movie-card.css'
 export default class MovieCard extends Component {
   createDate = (date) => {
     if (!date) {
-      return <Alert type="error" message="unknown date" />
+      return <Alert type="error" message="unknown date" style={{ width: 'fit-content', fontSize: '0.7rem' }} />
     }
     const oldDate = new Date(date)
     return format(new Date(oldDate), 'MMMM dd, yyyy')
@@ -29,7 +29,7 @@ export default class MovieCard extends Component {
 
   createImage = () => {
     if (!this.props.poster_path) {
-      return <Alert type="error" message="poster not found" />
+      return <Alert type="error" message="poster not found" style={{ fontSize: '0.7rem' }} />
     }
     return <CardImage image={this.props.poster_path} />
   }
@@ -52,7 +52,7 @@ export default class MovieCard extends Component {
 
     const contentData = {
       date: this.createDate(release_date),
-      text: this.formatText(overview, 150),
+      text: this.formatText(overview, 130),
       title: this.formatText(title, 25),
     }
     return (
@@ -67,7 +67,6 @@ export default class MovieCard extends Component {
           className="movie-card_rate-progress"
           strokeColor={color}
         />
-
         <div className="movie-card_image-container">{this.createImage()}</div>
       </div>
     )
