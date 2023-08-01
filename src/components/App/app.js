@@ -124,6 +124,17 @@ export default class App extends Component {
   }
 
   setNewPage = () => {
+    if (this.state.tab === 'rated') {
+      this.MovieDB.getRatedMovies(this.state.guestID, this.state.pages.current)
+        .then((body) => {
+          this.setState({
+            moviesData: body.results,
+          })
+        })
+        .catch((err) => {
+          this.onError(err)
+        })
+    }
     this.MovieDB.getMovies(this.state.keyword, this.state.pages.current)
       .then((body) => {
         this.setState({
@@ -145,7 +156,7 @@ export default class App extends Component {
         return movie.id === rated.id ? rated : movie
       })
 
-      const newRatedMovies = ratedMovies.toSpliced(-1, 0, rated)
+      const newRatedMovies = ratedMovies.includes(rated) ? ratedMovies : ratedMovies.toSpliced(-1, 0, rated)
 
       return {
         moviesData: newData,
@@ -159,6 +170,7 @@ export default class App extends Component {
         this.setState({
           ratedMovies: data.results,
           loading: false,
+          pages: { current: 1, total: data.total_pages },
         })
       })
       .catch((err) => {
