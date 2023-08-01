@@ -8,6 +8,14 @@ import CardImage from './card-image'
 import './movie-card.css'
 
 export default class MovieCard extends Component {
+  defaultProps = {
+    rating: 0,
+    genre_ids: [],
+    release_date: null,
+    overview: '',
+    title: '',
+  }
+
   createDate = (date) => {
     if (!date) {
       return <Alert type="error" message="unknown date" style={{ width: 'fit-content', fontSize: '0.7rem' }} />

@@ -30,4 +30,13 @@ const CardContent = ({ content, genre_ids }) => {
   )
 }
 
+CardContent.defaultProps = {
+  content: {
+    title: '',
+    date: '',
+    text: '',
+  },
+  genre_ids: [],
+}
+
 export default CardContent

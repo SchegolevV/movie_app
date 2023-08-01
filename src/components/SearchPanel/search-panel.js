@@ -3,6 +3,9 @@ import debounce from 'lodash.debounce'
 import { Input } from 'antd'
 import './search-panel.css'
 export default class SearchPanel extends Component {
+  defaultProps = {
+    getMovies: () => {},
+  }
   handleChange = (e) => {
     this.props.getMovies(e.target.value)
   }
