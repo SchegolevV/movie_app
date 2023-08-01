@@ -3,7 +3,7 @@ import debounce from 'lodash.debounce'
 import { Input } from 'antd'
 import './search-panel.css'
 export default class SearchPanel extends Component {
-  defaultProps = {
+  static defaultProps = {
     getMovies: () => {},
   }
   handleChange = (e) => {

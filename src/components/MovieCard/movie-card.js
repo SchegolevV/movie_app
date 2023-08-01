@@ -8,12 +8,16 @@ import CardImage from './card-image'
 import './movie-card.css'
 
 export default class MovieCard extends Component {
-  defaultProps = {
+  static defaultProps = {
     rating: 0,
     genre_ids: [],
     release_date: null,
     overview: '',
     title: '',
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return nextProps.rating !== this.props.rating
   }
 
   createDate = (date) => {
@@ -50,11 +54,11 @@ export default class MovieCard extends Component {
     const { title, overview, release_date, genre_ids, rating = 0 } = this.props
 
     let color = '#66E900'
-    if (rating <= 3) {
+    if (this.props.rating <= 3) {
       color = '#E90000'
-    } else if (rating <= 5) {
+    } else if (this.props.rating <= 5) {
       color = '#E97E00'
-    } else if (rating <= 7) {
+    } else if (this.props.rating <= 7) {
       color = '#E9D100'
     }
 

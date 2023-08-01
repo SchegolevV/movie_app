@@ -15,7 +15,7 @@ export default class MoviesList extends Component {
       message={cause}
     />
   )
-  defaultProps = {
+  static defaultProps = {
     moviesData: [{ title: 'something go wrong' }],
     ratedMovies: [{ title: 'something go wrong' }],
     loading: false,

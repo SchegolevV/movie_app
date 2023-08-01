@@ -124,17 +124,17 @@ export default class App extends Component {
   }
 
   setNewPage = () => {
-    if (this.state.tab === 'rated') {
-      this.MovieDB.getRatedMovies(this.state.guestID, this.state.pages.current)
-        .then((body) => {
-          this.setState({
-            moviesData: body.results,
-          })
-        })
-        .catch((err) => {
-          this.onError(err)
-        })
-    }
+    // if (this.state.tab === 'rated') {
+    //   this.MovieDB.getRatedMovies(this.state.guestID, this.state.pages.current)
+    //     .then((body) => {
+    //       this.setState({
+    //         moviesData: body.results,
+    //       })
+    //     })
+    //     .catch((err) => {
+    //       this.onError(err)
+    //     })
+    // }
     this.MovieDB.getMovies(this.state.keyword, this.state.pages.current)
       .then((body) => {
         this.setState({
@@ -164,8 +164,8 @@ export default class App extends Component {
       }
     })
   }
-  getRatedMovies = async (guest_session_id) => {
-    await this.MovieDB.getRatedMovies(guest_session_id)
+  getRatedMovies = (guest_session_id) => {
+    this.MovieDB.getRatedMovies(guest_session_id)
       .then((data) => {
         this.setState({
           ratedMovies: data.results,
