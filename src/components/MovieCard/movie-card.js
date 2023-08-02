@@ -1,23 +1,19 @@
 import { Alert, Rate, Progress } from 'antd'
 import { format } from 'date-fns'
-import { Component } from 'react'
+import { PureComponent } from 'react'
 
 import CardContent from './card-content'
 import CardImage from './card-image'
 
 import './movie-card.css'
 
-export default class MovieCard extends Component {
+export default class MovieCard extends PureComponent {
   static defaultProps = {
     rating: 0,
     genre_ids: [],
     release_date: null,
     overview: '',
     title: '',
-  }
-
-  shouldComponentUpdate(nextProps) {
-    return nextProps.rating !== this.props.rating
   }
 
   createDate = (date) => {
